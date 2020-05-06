@@ -61,9 +61,9 @@ class MainActivity : DaggerAppCompatActivity() {
             Status.Fail -> Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show()
 
             Status.Success -> {
-                //launch recycler adapter
                 val bakersList: List<BakersResponseModel> = data as List<BakersResponseModel>
                 initRecyclerView(bakersList.sortedBy { it.title })
+                handleProgress(false)
             }
             Status.ShowProgress, Status.HideProgress -> handleProgress(data as Boolean)
         }

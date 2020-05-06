@@ -10,6 +10,7 @@ import com.example.appiness.data.model.BakersResponseModel
 
 class BakersAdapter(private val bakersList: List<BakersResponseModel>) :
     RecyclerView.Adapter<BakersAdapter.BakersViewHolder>() {
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
