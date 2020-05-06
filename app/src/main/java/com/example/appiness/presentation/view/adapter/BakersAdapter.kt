@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appiness.R
 import com.example.appiness.data.model.BakersResponseModel
 
-class BakersAdapter(private val bakersList: List<BakersResponseModel>) :
+
+class BakersAdapter(private var bakersList: List<BakersResponseModel>) :
     RecyclerView.Adapter<BakersAdapter.BakersViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -40,5 +41,9 @@ class BakersAdapter(private val bakersList: List<BakersResponseModel>) :
         }
     }
 
+    fun updateList(list: List<BakersResponseModel>) {
+        bakersList = list
+        notifyDataSetChanged()
+    }
 
 }
