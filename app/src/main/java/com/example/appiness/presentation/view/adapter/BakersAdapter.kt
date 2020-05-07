@@ -42,7 +42,7 @@ class BakersAdapter(private var bakersList: List<BakersResponseModel>) :
     }
 
     fun updateList(list: List<BakersResponseModel>) {
-        bakersList = list
+        bakersList = list.sortedBy { it.title }
         notifyDataSetChanged()
     }
 

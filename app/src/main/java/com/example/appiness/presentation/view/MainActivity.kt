@@ -3,9 +3,9 @@ package com.example.appiness.presentation.view
 import android.app.SearchManager
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.widget.SearchView
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,16 +15,20 @@ import com.example.appiness.core.application.di.ViewModelProviderFactory
 import com.example.appiness.core.others.Status
 import com.example.appiness.data.datasource.RemoteApi
 import com.example.appiness.data.model.BakersResponseModel
+import com.example.appiness.databinding.ActivityMainBinding
 import com.example.appiness.presentation.view.adapter.BakersAdapter
 import com.example.appiness.presentation.viewmodels.MainViewModel
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.error_layout.view.*
+import java.util.*
 import javax.inject.Inject
 
 
 class MainActivity : DaggerAppCompatActivity() {
     private lateinit var adapter: BakersAdapter
     private lateinit var bakersList: List<BakersResponseModel>
+    private lateinit var activityBinding: ActivityMainBinding
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -36,14 +40,20 @@ class MainActivity : DaggerAppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        activityBinding = DataBindingUtil.setContentView(this@MainActivity, R.layout.activity_main)
+        activityBinding.lifecycleOwner = this
         mainViewModel = ViewModelProvider(this, providerFactory).get(MainViewModel::class.java)
+        activityBinding.viewModel = mainViewModel
         mainViewModel.getBakersData()
+        handleProgress(true)
         initSearch()
+        initRecyclerView(listOf())
         observeResponse()
+        activityBinding.errorLayout.txtTryAgain.setOnClickListener { mainViewModel.getBakersData() }
     }
 
     private fun initSearch() {
+        adapter = BakersAdapter(listOf())
         val manager: SearchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         val searchItem: SearchView = toolbar.menu.findItem(R.id.search).actionView as SearchView
         searchItem.setSearchableInfo(manager.getSearchableInfo(componentName))
@@ -51,12 +61,14 @@ class MainActivity : DaggerAppCompatActivity() {
         searchItem.isIconified = false
         searchItem.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                Log.d("search result", query)
+                searchItem.clearFocus()
                 return true
             }
 
             override fun onQueryTextChange(query: String?): Boolean {
-                Log.d("search result", query)
+                adapter.updateList(bakersList.filter {
+                    it.title.toUpperCase(Locale.ROOT).contains(query!!.toUpperCase(Locale.ROOT))
+                })
                 return true
             }
         })
@@ -77,25 +89,28 @@ class MainActivity : DaggerAppCompatActivity() {
 
     private fun update(status: Status, data: Any?) {
         when (status) {
-            Status.Failed -> Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show()
+            Status.Failed -> {
+                handleProgress(false)
+                activityBinding.errorLayout.visibility = View.VISIBLE
+                toolbar.menu.findItem(R.id.search).isEnabled = false
+            }
 
-
-            Status.Fail -> Toast.makeText(this, "Failed", Toast.LENGTH_LONG).show()
+            Status.Fail -> {
+                handleProgress(false)
+                toolbar.menu.findItem(R.id.search).isEnabled = false
+                activityBinding.errorLayout.visibility = View.VISIBLE
+            }
 
             Status.Success -> {
                 bakersList = data as List<BakersResponseModel>
+                mainViewModel.showErrorLayout.value = false
                 initRecyclerView(bakersList.sortedBy { it.title })
-                handleProgress(false)
             }
             Status.ShowProgress, Status.HideProgress -> handleProgress(data as Boolean)
         }
     }
 
     private fun handleProgress(displayProgress: Boolean) {
-        if (displayProgress) {
-            mainViewModel.showProgress.setValue(true)
-        } else {
-            mainViewModel.showProgress.setValue(false)
-        }
+        mainViewModel.showProgress.value = displayProgress
     }
 }

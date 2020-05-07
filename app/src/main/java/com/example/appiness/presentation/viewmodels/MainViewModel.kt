@@ -16,7 +16,7 @@ class MainViewModel(
     private var compositeDisposable: CompositeDisposable? = null
     var bakersLiveDataResponse: MutableLiveData<ResponseApi> = MutableLiveData()
     var showProgress : MutableLiveData<Boolean> = MutableLiveData()
-
+    var showErrorLayout : MutableLiveData<Boolean> = MutableLiveData()
     private fun getCompositeDisposable(): CompositeDisposable {
         if (compositeDisposable == null) {
             compositeDisposable = CompositeDisposable()
