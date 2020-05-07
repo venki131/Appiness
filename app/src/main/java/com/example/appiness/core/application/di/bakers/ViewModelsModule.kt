@@ -8,7 +8,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 
 @Module
-abstract class LoginViewModelsModule {
+abstract class ViewModelsModule {
     @Binds
     @IntoMap
     @ViewModelKey(MainViewModel::class)

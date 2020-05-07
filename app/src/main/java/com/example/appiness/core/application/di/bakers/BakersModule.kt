@@ -1,6 +1,6 @@
 package com.example.appiness.core.application.di.bakers
 
-import com.danbro.delivery.core.application.di.login.LoginScope
+import com.danbro.delivery.core.application.di.login.BakerScope
 import com.example.appiness.core.application.di.ViewModelProviderFactory
 import com.example.appiness.data.datasource.RemoteApi
 import com.example.appiness.data.datasource.RemoteApiImpl
@@ -14,25 +14,25 @@ import javax.inject.Named
 @Module
 class BakersModule {
     @Provides
-    @LoginScope
+    @BakerScope
     fun provideSignUpRemoteApi(retrofit: Retrofit): RemoteApi {
         return retrofit.create<RemoteApi>(RemoteApi::class.java)
     }
 
     @Provides
-    @LoginScope
+    @BakerScope
     fun provideRemoteSignUpDataSourceImp(remoteApi: RemoteApi): BakersRepository {
         return RemoteApiImpl(remoteApi)
     }
 
     @Provides
-    @LoginScope
+    @BakerScope
     fun provideSignUpRemoteDataUseCase(remoteSignUpData: BakersRepository): BakersRemoteDataUseCase {
         return BakersRemoteDataUseCase(remoteSignUpData)
     }
 
     @Provides
-    @LoginScope
+    @BakerScope
     @Named("BakersActivity")
     fun provideLoginViewModelFactory(
         bakersUseCase: BakersRemoteDataUseCase
